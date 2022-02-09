@@ -1,6 +1,9 @@
 const express = require('express');
 const { animals } = require('./data/animals');
 
+const fs = require('fs');
+const path = require('path');
+
 const PORT = process.env.PORT || 3001;
 const app = express();
 
@@ -42,8 +45,14 @@ function findById(id, animalsArray) {
 }
 
 function createNewAnimal(body, animalsArray) {
-  console.log(body);
-  return body;
+  const animal = body;
+  animalsArray.push(animal);
+  fs.writeFileSync(
+    path.join(__dirname, './data/animals.json'),
+    JSON.stringify({ animals: animalsArray }, null, 2)
+  );
+
+  return animal;
 }
 
 app.get('/api/animals', (req, res) => {
@@ -67,12 +76,14 @@ app.post('/api/animals', (req, res) => {
   // req.body is where our incoming content will be
   req.body.id = animals.length.toString();
 
+  const animal = createNewAnimal(req.body, animals);
+
   console.log(req.body);
-  res.json(req.body);
+  res.json(animal);
 });
 
 app.listen(PORT, () => {
   console.log(`API server now on port ${PORT}!`);
 });
 
-//CONTINUE AT 11.2.6
+//CONTINUE AT 11.2.6: Add Validation to Our Data
